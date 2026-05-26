@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <title>ArcHive 知弧</title>
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
 <style>
 body {
   margin: 0;
@@ -14,6 +16,7 @@ body {
   color: white;
 }
 
+/* canvas */
 #canvas {
   position: absolute;
   top: 0;
@@ -38,7 +41,7 @@ body {
   z-index: 10;
 }
 
-/* Logo */
+/* logo */
 .logo-img {
   width: 80px;
   height: 80px;
@@ -46,12 +49,10 @@ body {
   filter: drop-shadow(0 0 18px rgba(255,255,255,0.3));
 }
 
-/* 标题 */
 .title {
   font-size: 30px;
   font-weight: bold;
   letter-spacing: 2px;
-  color: white;
 }
 
 .sub {
@@ -60,6 +61,7 @@ body {
   margin-bottom: 25px;
 }
 
+/* input */
 input {
   width: 100%;
   padding: 12px;
@@ -70,12 +72,13 @@ input {
   outline: none;
 }
 
+/* buttons */
 button {
   width: 100%;
-  margin-top: 15px;
+  margin-top: 10px;
   padding: 12px;
-  border: 1px solid rgba(255,255,255,0.15);
   border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
   background: rgba(255,255,255,0.05);
   color: white;
   font-weight: bold;
@@ -94,13 +97,36 @@ button:hover {
   color: rgba(255,255,255,0.6);
 }
 
-/* 🔽 footer 改小 */
+/* footer */
 .footer {
   margin-top: 15px;
-  font-size: 8px;   /* ← 这里变小 */
+  font-size: 8px;
   letter-spacing: 2px;
   color: rgba(255,255,255,0.25);
   text-transform: uppercase;
+}
+
+/* 横屏提示 */
+#rotateTip {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  z-index: 999;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 16px;
+  color: white;
+}
+
+@media screen and (orientation: portrait) {
+  #rotateTip {
+    display: flex;
+  }
 }
 </style>
 </head>
@@ -109,13 +135,20 @@ button:hover {
 
 <canvas id="canvas"></canvas>
 
+<div id="rotateTip">
+PLEASE ROTATE DEVICE
+</div>
+
 <div class="box">
+
   <img src="ArcHive-logo.png" class="logo-img">
 
   <div class="title">ArcHive</div>
   <div class="sub">知弧 · Private Access System</div>
 
   <input type="password" id="pwd" placeholder="Enter Access Code">
+
+  <button onclick="togglePwd()">SHOW / HIDE PASSWORD</button>
   <button onclick="login()">ENTER</button>
 
   <div id="msg"></div>
@@ -123,10 +156,12 @@ button:hover {
   <div class="footer">
     ARCHIVE SYSTEM · TIANHE STUDIO · 2026
   </div>
+
 </div>
 
 <script>
 
+/* 🔐 密码 */
 const correctPassword = "A7XQ9M3L8P2W6KD";
 
 function login() {
@@ -146,19 +181,29 @@ function login() {
   }
 }
 
-/* 🌌 Canvas System + Mouse Avoidance */
+/* 👁 密码显示/隐藏 */
+function togglePwd() {
+  const input = document.getElementById("pwd");
+  input.type = input.type === "password" ? "text" : "password";
+}
+
+/* 📱 横屏锁定 */
+function lockOrientation() {
+  if (screen.orientation && screen.orientation.lock) {
+    screen.orientation.lock("landscape").catch(() => {});
+  }
+}
+
+window.addEventListener("load", lockOrientation);
+
+/* 🌌 点阵 + 鼠标避让 */
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-/* 鼠标位置 */
-const mouse = {
-  x: null,
-  y: null,
-  radius: 140
-};
+const mouse = { x: null, y: null, radius: 140 };
 
 window.addEventListener("mousemove", (e) => {
   mouse.x = e.x;
@@ -182,7 +227,7 @@ function draw() {
   for (let i = 0; i < points.length; i++) {
     let p = points[i];
 
-    /* 🧠 鼠标排斥力 */
+    /* 鼠标排斥 */
     if (mouse.x !== null) {
       let dx = p.x - mouse.x;
       let dy = p.y - mouse.y;
